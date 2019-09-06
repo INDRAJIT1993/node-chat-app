@@ -12,4 +12,18 @@ socket.on('newEmail',(data)=> {
 
 socket.on('newMessage', (newMessage) => {
     console.log("newMessage", newMessage);
+    var li = jQuery('<li></li>');
+    li.text(`${newMessage.from}:${newMessage.text}`);
+    jQuery('#messages').append(li)
+})
+
+
+jQuery('#messege-form').on('submit',function(e){
+    e.preventDefault();
+    socket.emit('creatMessage',{
+        from:'user',
+        text: jQuery('[name=message]').val()
+    },function(){
+
+    })
 })
