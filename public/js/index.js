@@ -6,8 +6,8 @@ socket.on('connect', () => {
 socket.on('disconnect', () => {
     console.log('disconnected to server');
 })
-socket.on('newEmail',(data)=> {
-    console.log('new email',data);
+socket.on('newEmail', (data) => {
+    console.log('new email', data);
 })
 
 socket.on('newMessage', (newMessage) => {
@@ -17,39 +17,43 @@ socket.on('newMessage', (newMessage) => {
     jQuery('#messages').append(li)
 })
 
-socket.on('newLocationMessage',(message)=>{
-    var li=jQuery('<li></li>')
+socket.on('newLocationMessage', (message) => {
+    var li = jQuery('<li></li>')
     var a = jQuery('<a target="_blank">My current location</a>')
     li.text(`${message.from}:`)
-    a.attr('href',message.url)
+    a.attr('href', message.url)
     li.append(a);
     jQuery('#messages').append(li)
 
 })
 
 
-jQuery('#messege-form').on('submit',function(e){
+jQuery('#messege-form').on('submit', function (e) {
     e.preventDefault();
-    socket.emit('creatMessage',{
-        from:'user',
-        text: jQuery('[name=message]').val()
-    },function(){
-
+    var messageTextBox = jQuery('[name=message]');
+    socket.emit('creatMessage', {
+        from: 'user',
+        text: messageTextBox.val()
+    }, function () {
+        messageTextBox.val('');
     })
 })
 
-var locationButton=jQuery('#send-location');
-locationButton.on('click',function(){
-    if(!navigator.geolocation){
+var locationButton = jQuery('#send-location');
+locationButton.on('click', function () {
+    if (!navigator.geolocation) {
         return alert('Geolocation not supported by your browser')
     }
-    navigator.geolocation.getCurrentPosition(function(position){
+    locationButton.attr('disabled', 'disabled').text('sending location...')
+    navigator.geolocation.getCurrentPosition(function (position) {
+        locationButton.removeAttr('disabled').text('send location')
         console.log(position.coords.latitude);
-        socket.emit('createLocation',{
+        socket.emit('createLocation', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
         })
-    },function(){
-            return alert('something went wrong')
+    }, function () {
+            locationButton.removeAttr('disabled').text('send location')
+        return alert('something went wrong')
     })
 })
