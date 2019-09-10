@@ -32,12 +32,18 @@ io.on('connection', (socket) => {
         socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined`))
     })
     socket.on('creatMessage',(newMessage,callback)=>{
-      console.log("newMessage",newMessage);
-        io.emit('newMessage', generateMessage(newMessage.from, newMessage.text))
+        var user = users.getUser(socket.id)
+        if (user && isRealString(newMessage.text)){
+            io.to(user.room).emit('newMessage', generateMessage(user.name, newMessage.text))
+        }
+    //   console.log("newMessage",newMessage);
         // callback('this is from server');
     })
     socket.on('createLocation',(coordinates)=>{
-        io.emit('newLocationMessage', generateLocationMessage('admin', coordinates.latitude,coordinates.longitude))
+        var user = users.getUser(socket.id)
+        if (user) {
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coordinates.latitude, coordinates.longitude))
+        }
     })
 
     socket.on('disconnect', () => {
